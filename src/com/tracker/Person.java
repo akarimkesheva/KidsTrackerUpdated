@@ -14,6 +14,12 @@ public abstract class Person {
     public String getName() { return name; }
     public int getAge() { return age; }
 
+    public void setName(String name) {
+        if (name != null && !name.isEmpty()) {
+            this.name = name;
+        }
+    }
+
 
     public boolean isValid() {
         return name != null && !name.isEmpty() && age > 0;

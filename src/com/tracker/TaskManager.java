@@ -15,6 +15,9 @@ public class TaskManager {
         this.tasks = new ArrayList<>();
         this.rewards = new ArrayList<>();
     }
+    public List<Child> getAllChildren() {
+        return this.children;
+    }
 
    //Add children
     public void addChild(Child child) {

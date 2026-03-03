@@ -15,9 +15,17 @@ public class MainTest {
         System.out.print("Please enter your Child's Name: ");
         String name = input.nextLine();
 
-        System.out.print("Please enter your Child's Age: ");
-        int age = input.nextInt();
-        input.nextLine(); // Clears the Enter key from memory
+        int age = 0;
+        while (age == 0) {
+            System.out.print("Please enter your Child's Age: ");
+            try {
+                age = input.nextInt();
+                input.nextLine();
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Error: Please enter a number for the age (e.g., 8)!");
+                input.nextLine();
+            }
+        }
 
         Child myChild = new Child(1, name, age);
         manager.addChild(myChild);

@@ -61,6 +61,12 @@ public class TrackerGui extends Application {
         Label statusLabel = new Label("Enter child's name and add items.");
         Button finishBtn = new Button("Finish & Save Profile");
 
+        Button backToHomeBtn = new Button("Back to Main Menu");
+        backToHomeBtn.setOnAction(e -> {
+            currentChild = null;
+            showLandingPage();
+        });
+
         // EVENT: Add Task
         addTaskBtn.setOnAction(e -> {
             try {
@@ -90,9 +96,22 @@ public class TrackerGui extends Application {
 
         finishBtn.setOnAction(e -> showLandingPage());
 
+
+        Button nextChildBtn = new Button("Save & Add Another Child");
+        nextChildBtn.setOnAction(e -> {
+            currentChild = null;
+            nameIn.setDisable(false);
+            nameIn.clear();
+            taskIn.clear();
+            pointsIn.clear();
+            rewardIn.clear();
+            costIn.clear();
+            statusLabel.setText("Profile saved! You can now add a new child.");
+        });
+
         VBox layout = new VBox(10, title, nameIn, new Separator(), taskHeader, taskIn, pointsIn, addTaskBtn,
                 new Separator(), rewardHeader, rewardIn, costIn, addRewardBtn,
-                new Separator(), statusLabel, finishBtn);
+                new Separator(), statusLabel, nextChildBtn,backToHomeBtn, finishBtn);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
         mainStage.setScene(new Scene(new ScrollPane(layout), 500, 600)); // Added ScrollPane for long lists
@@ -104,16 +123,32 @@ public class TrackerGui extends Application {
         TextField nameIn = new TextField();
         Button loginBtn = new Button("Go to My Tracker");
 
+        Button backBtn = new Button("Go Back");
+        backBtn.setOnAction(e -> showLandingPage());
+
+
         loginBtn.setOnAction(e -> {
-            if (currentChild != null && nameIn.getText().equalsIgnoreCase(currentChild.getName())) {
+            String inputName = nameIn.getText();
+
+            // Search through ALL children in the manager for a name match
+            Child found = null;
+            for (Child c : manager.getAllChildren()) {
+                if (c.getName().equalsIgnoreCase(inputName)) {
+                    found = c;
+                    break;
+                }
+            }
+
+            if (found != null) {
+                this.currentChild = found;
                 showChildDashboard();
             } else {
-                title.setText("Name not found! Ask Mom or Dad.");
+                title.setText("Name not found! Ask a parent for help.");
                 title.setStyle("-fx-text-fill: red;");
             }
         });
 
-        VBox layout = new VBox(15, title, nameIn, loginBtn);
+        VBox layout = new VBox(15, title, nameIn, loginBtn, backBtn);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(30));
         mainStage.setScene(new Scene(layout, 500, 300));
