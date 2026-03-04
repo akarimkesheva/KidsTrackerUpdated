@@ -44,77 +44,78 @@ public class TrackerGui extends Application {
         Label title = new Label("[Parent Setup Mode]");
         title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        TextField nameIn = new TextField(); nameIn.setPromptText("Enter Child's Name"); //
+        TextField nameIn = new TextField();
+        nameIn.setPromptText("Enter Child's Name");
 
-        // Task Section
         Label taskHeader = new Label("Add Chores:");
-        TextField taskIn = new TextField(); taskIn.setPromptText("Task Name (e.g. Brush Teeth)");
-        TextField pointsIn = new TextField(); pointsIn.setPromptText("Points Value");
-        Button addTaskBtn = new Button("Add This Task");
+        TextField taskIn = new TextField();
+        taskIn.setPromptText("Task Name (e.g. Brush Teeth)");
+        TextField pointsIn = new TextField();
+        pointsIn.setPromptText("Points Value");
 
-        // Reward Section
         Label rewardHeader = new Label("Add Rewards:");
-        TextField rewardIn = new TextField(); rewardIn.setPromptText("Reward Name (e.g. Extra Game Time)");
-        TextField costIn = new TextField(); costIn.setPromptText("Cost in Stars");
-        Button addRewardBtn = new Button("Add This Reward");
+        TextField rewardIn = new TextField();
+        rewardIn.setPromptText("Reward Name (e.g. Extra Game Time)");
+        TextField costIn = new TextField();
+        costIn.setPromptText("Cost in Stars");
 
         Label statusLabel = new Label("Enter child's name and add items.");
         Button finishBtn = new Button("Finish & Save Profile");
-
+        Button nextChildBtn = new Button("Save & Add Another Child");
         Button backToHomeBtn = new Button("Back to Main Menu");
+
         backToHomeBtn.setOnAction(e -> {
             currentChild = null;
             showLandingPage();
         });
 
-        // EVENT: Add Task
-        addTaskBtn.setOnAction(e -> {
-            try {
-                if (currentChild == null) {
-                    currentChild = new Child(1, nameIn.getText(), 8); //
-                    manager.addChild(currentChild);
-                    nameIn.setDisable(true);
-                }
-                Task t = new Task(100 + currentChild.getTasks().size(), taskIn.getText(), "Chore", Integer.parseInt(pointsIn.getText()), "Today");
-                currentChild.addTask(t); //
-                taskIn.clear(); pointsIn.clear();
-                statusLabel.setText("Task added! Total tasks: " + currentChild.getTasks().size());
-            } catch (Exception ex) { statusLabel.setText("Error in Task data!"); }
+        // saves data for both "Finish" and "Next" buttons
+        finishBtn.setOnAction(e -> {
+            saveChildData(nameIn, taskIn, pointsIn, rewardIn, costIn);
+            showLandingPage();
         });
 
-        // EVENT: Add Reward
-        addRewardBtn.setOnAction(e -> {
-            try {
-                if (currentChild != null) {
-                    Reward r = new Reward(500 + currentChild.getRewards().size(), rewardIn.getText(), Integer.parseInt(costIn.getText()));
-                    currentChild.addReward(r); //
-                    rewardIn.clear(); costIn.clear();
-                    statusLabel.setText("Reward added! Total rewards: " + currentChild.getRewards().size());
-                }
-            } catch (Exception ex) { statusLabel.setText("Error in Reward data!"); }
-        });
-
-        finishBtn.setOnAction(e -> showLandingPage());
-
-
-        Button nextChildBtn = new Button("Save & Add Another Child");
         nextChildBtn.setOnAction(e -> {
-            currentChild = null;
-            nameIn.setDisable(false);
+            saveChildData(nameIn, taskIn, pointsIn, rewardIn, costIn);
             nameIn.clear();
             taskIn.clear();
             pointsIn.clear();
             rewardIn.clear();
             costIn.clear();
-            statusLabel.setText("Profile saved! You can now add a new child.");
+            statusLabel.setText("Profile saved! Add another below.");
         });
 
-        VBox layout = new VBox(10, title, nameIn, new Separator(), taskHeader, taskIn, pointsIn, addTaskBtn,
-                new Separator(), rewardHeader, rewardIn, costIn, addRewardBtn,
-                new Separator(), statusLabel, nextChildBtn,backToHomeBtn, finishBtn);
+        VBox layout = new VBox(10, title, nameIn, new Separator(), taskHeader, taskIn, pointsIn,
+                new Separator(), rewardHeader, rewardIn, costIn,
+                new Separator(), statusLabel, nextChildBtn, backToHomeBtn, finishBtn);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
-        mainStage.setScene(new Scene(new ScrollPane(layout), 500, 600)); // Added ScrollPane for long lists
+        mainStage.setScene(new Scene(new ScrollPane(layout), 500, 600));
+    }
+
+    //  method to prevent code duplication in Parent Setup
+    private void saveChildData(TextField nameIn, TextField taskIn, TextField pointsIn, TextField rewardIn, TextField costIn) {
+        String name = nameIn.getText().trim();
+        if (!name.isEmpty()) {
+            int id = manager.getAllChildren().size() + 1;
+            Child c = new Child(id, name, 8);
+
+            if (!taskIn.getText().isEmpty() && !pointsIn.getText().isEmpty()) {
+                try {
+                    int taskId = (int)(System.currentTimeMillis() % 10000);
+                    Task t = new Task(taskId, taskIn.getText(), "Chore", Integer.parseInt(pointsIn.getText()), "Today");
+                    c.addTask(t);
+                } catch (NumberFormatException ex) { System.out.println("Invalid Task Points"); }
+            }
+
+            if (!rewardIn.getText().isEmpty() && !costIn.getText().isEmpty()) {
+                try {
+                    Reward r = new Reward(500 + id, rewardIn.getText(), Integer.parseInt(costIn.getText()));
+                    c.addReward(r);
+                } catch (NumberFormatException ex) { System.out.println("Invalid Reward Cost"); }
+            }
+            manager.addChild(c);
+        }
     }
 
     // Child section
@@ -122,15 +123,12 @@ public class TrackerGui extends Application {
         Label title = new Label("Hi there! What is your name?");
         TextField nameIn = new TextField();
         Button loginBtn = new Button("Go to My Tracker");
-
         Button backBtn = new Button("Go Back");
-        backBtn.setOnAction(e -> showLandingPage());
 
+        backBtn.setOnAction(e -> showLandingPage());
 
         loginBtn.setOnAction(e -> {
             String inputName = nameIn.getText();
-
-            // Search through ALL children in the manager for a name match
             Child found = null;
             for (Child c : manager.getAllChildren()) {
                 if (c.getName().equalsIgnoreCase(inputName)) {
@@ -157,15 +155,13 @@ public class TrackerGui extends Application {
     // Child results
     private void showChildDashboard() {
         Label welcome = new Label("⭐ Hello, " + currentChild.getName() + "! ⭐");
-        Label starsLabel = new Label("Stars: " + currentChild.getPointsEarned()); //
+        Label starsLabel = new Label("Stars: " + currentChild.getPointsEarned());
         starsLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: #DAA520; -fx-font-weight: bold;");
 
-        // Tasks Output
         ListView<Task> taskList = new ListView<>();
         taskList.getItems().addAll(currentChild.getTasks());
         Button doneBtn = new Button("I Completed a Task!");
 
-        // Rewards Output
         ListView<Reward> rewardList = new ListView<>();
         rewardList.getItems().addAll(currentChild.getRewards());
         Button claimBtn = new Button("Claim Reward!");
@@ -176,7 +172,7 @@ public class TrackerGui extends Application {
                 manager.updateTaskStatus(currentChild.getChildId(), selected.getTaskId(), "Completed");
                 starsLabel.setText("Stars: " + currentChild.getPointsEarned());
                 taskList.refresh();
-                new Alert(Alert.AlertType.INFORMATION, "Great job!").show();
+                new Alert(Alert.AlertType.INFORMATION, "Task Completed! You earned stars.").show();
             }
         });
 

@@ -43,7 +43,6 @@ public class TaskManager {
                     if (t.getTaskId() == taskId) {
                         t.setStatus(status);
 
-                        // If the child marks it "Completed", give them the points!
                         if (t.isCompleted()) {
                             c.addPoints(t.getPointsValue());
                         }

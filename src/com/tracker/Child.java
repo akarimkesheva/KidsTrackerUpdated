@@ -42,13 +42,6 @@ public class Child extends Person {
     // Actions(methods)
 
 
-    public void addPoints(int points) {
-        if (points > 0) {
-            this.pointsEarned += points;
-        }
-    }
-
-
     public void addTask(Task task) {
         this.tasks.add(task);
     }
@@ -56,6 +49,18 @@ public class Child extends Person {
 
     public void addReward(Reward reward) {
         this.rewards.add(reward);
+    }
+
+    public void setPointsEarned(int pointsEarned) {
+        this.pointsEarned = pointsEarned;
+    }
+
+
+    public void addPoints(int points) {
+        if (points > 0) {
+            this.pointsEarned += points;
+            System.out.println("DEBUG: Points added. New total for " + getName() + ": " + pointsEarned);
+        }
     }
 
 

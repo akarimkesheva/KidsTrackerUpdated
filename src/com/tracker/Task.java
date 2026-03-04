@@ -9,15 +9,14 @@ public class Task {
     private String description;  // Details about the task
     private String status;       // "Pending", "In Progress", or "Completed"
     private int pointsValue;     // Points awarded upon completion
-    private String dueDate;      // Deadline for the task
+
 
     public Task(int taskId, String taskName, String description, int pointsValue, String dueDate) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.description = description;
         this.pointsValue = pointsValue;
-        this.dueDate = dueDate;
-        this.status = "Pending"; // Initial status as per requirements
+        this.status = "Pending";
     }
 
     // Getters
